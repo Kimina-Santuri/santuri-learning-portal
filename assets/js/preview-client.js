@@ -146,6 +146,12 @@ const rpcs={
   return people.filter(p=>p.full_name.toLowerCase().includes(q)||p.email.includes(q)).map(({id,full_name,email})=>({id,full_name,email}));},
  learning_overview:()=>{requireStaff();const current=new Set(state.cohorts.filter(h=>['planned','active'].includes(h.status)).map(h=>h.id)),distinct=role=>new Set(state.members.filter(m=>m.role===role&&m.status==='active'&&current.has(m.cohort_id)).map(m=>m.user_id)).size,ws=weekStart();
   return {programs:state.programs.filter(p=>p.active).length,courses:state.courses.filter(c=>c.active).length,active_cohorts:state.cohorts.filter(h=>h.status==='active').length,learners:distinct('learner'),tutors:distinct('tutor'),to_grade:state.submissions.filter(s=>s.status==='submitted').length,sessions_this_week:state.sessions.filter(s=>{const t=new Date(s.starts_at).getTime();return t>=ws&&t<ws+7*86400000;}).length};},
+ delete_cohort:({p_id,p_confirm})=>{requireStaff();const h=state.cohorts.find(x=>x.id===p_id);guard(h,'Cohort not found');
+  const work=state.submissions.some(x=>x.cohort_id===p_id)||state.attendance.some(x=>x.cohort_id===p_id);guard(!work||(p_confirm||'').trim()===h.name,'This cohort has learner work or attendance. Type the cohort name exactly to confirm.');
+  for(const key of ['attendance','sessions','submissions','assignments','members'])state[key]=state[key].filter(x=>x.cohort_id!==p_id);state.cohorts=state.cohorts.filter(x=>x.id!==p_id);},
+ delete_course:({p_id})=>{requireStaff();guard(state.courses.some(c=>c.id===p_id),'Course not found');guard(!state.cohorts.some(h=>h.course_id===p_id),"Delete or move this course's cohorts first.");
+  state.materials=state.materials.filter(m=>m.course_id!==p_id);state.modules=state.modules.filter(m=>m.course_id!==p_id);state.courses=state.courses.filter(c=>c.id!==p_id);},
+ delete_program:({p_id})=>{requireStaff();guard(state.programs.some(x=>x.id===p_id),'Program not found');guard(!state.courses.some(c=>c.program_id===p_id),"Delete or move this program's courses first.");state.programs=state.programs.filter(x=>x.id!==p_id);},
  save_module:({p_id,p_version,p_data:d})=>{const cid=p_id?state.modules.find(m=>m.id===p_id)?.course_id:d.course_id;guard(teachCourse(cid));
   return upsert(state.modules,p_id,p_version,{course_id:cid,title:d.title.trim(),summary:(d.summary||'').trim(),sort_order:d.sort_order||0},'module');},
  delete_module:({p_id})=>{const m=state.modules.find(x=>x.id===p_id);guard(m&&teachCourse(m.course_id));state.modules=state.modules.filter(x=>x.id!==p_id);

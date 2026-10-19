@@ -53,3 +53,4 @@ details{margin-bottom:1rem}summary{cursor:pointer;font-weight:600}
 .poster{position:relative}.poster-tag{position:absolute;top:1rem;right:1rem;z-index:1;background:#fff;color:#000;border:1px solid #000;font:600 .65rem var(--mono);text-transform:uppercase;padding:.3rem .5rem}
 .poster-past img,.poster-past.poster-generated{filter:grayscale(1) contrast(.85);opacity:.75}
 @media (max-width:760px){.landing-controls{align-items:start}}
+.text-button.danger{color:#a40000}.button.danger-button{background:#a40000;border-color:#a40000;color:#fff}
