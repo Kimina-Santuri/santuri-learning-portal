@@ -40,6 +40,12 @@ test('tutor list and public listings',async t=>{
   const rows=await query('select * from upcoming_listings()');
   assert.deepEqual(rows.map(r=>r.cohort_name),['Open lab']);
   assert.equal(rows[0].program_name,'Instrument Makers Lab');assert.equal(rows[0].format,'lab');
+  assert.deepEqual((await query('select * from past_listings()')).map(r=>r.cohort_name),['Finished'],'archived and unlisted cohorts stay hidden');
+  await as(admin);
+  await rpc('save_cohort',[null,null,{course_id:course,name:'Wrapped up',starts_on:soon,status:'completed',listed:true}]);
+  await as(null,'anon');
+  assert.deepEqual((await query('select * from past_listings()')).map(r=>r.cohort_name).sort(),['Finished','Wrapped up']);
+  assert.ok(!(await query('select * from upcoming_listings()')).some(r=>r.cohort_name==='Wrapped up'),'completed cohorts leave Upcoming');
   await rejects(()=>query('select * from public.cohorts'),/permission denied/);
   await rejects(()=>rpc('list_tutors'),/permission denied/);
  });

@@ -49,3 +49,7 @@ details{margin-bottom:1rem}summary{cursor:pointer;font-weight:600}
 .tutor-pick-actions{align-self:end;align-items:center}
 #tutor-pick{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--line)}
 .poster-grid>.empty-state,.poster-grid>.muted{grid-column:1/-1}
+.landing-controls{display:flex;flex-direction:column;align-items:end;gap:.6rem}.view-switch button{font-weight:600}
+.poster{position:relative}.poster-tag{position:absolute;top:1rem;right:1rem;z-index:1;background:#fff;color:#000;border:1px solid #000;font:600 .65rem var(--mono);text-transform:uppercase;padding:.3rem .5rem}
+.poster-past img,.poster-past.poster-generated{filter:grayscale(1) contrast(.85);opacity:.75}
+@media (max-width:760px){.landing-controls{align-items:start}}

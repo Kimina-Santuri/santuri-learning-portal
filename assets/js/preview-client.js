@@ -1,7 +1,7 @@
 // Local design preview: an in-browser stand-in for the Supabase client with sample data.
 // Loaded only on 127.0.0.1/localhost with ?preview (see supabase-client.js). Never talks to Supabase.
 // It mirrors the database rules closely enough to click through every role; the real rules live in supabase/migrations.
-const KEY='santuri-learning-preview-v3';
+const KEY='santuri-learning-preview-v4';
 const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const people=[
  [1,'Sample Staff','staff@example.test'],[2,'Sample Tutor','tutor@example.test'],[3,'Sample Learner','learner@example.test'],
@@ -25,7 +25,9 @@ function seed(){
   {id:id(302),course_id:id(202),name:'Sample session',starts_on:today(30),ends_on:today(30),status:'planned',version:1,listed:true,location:'Sample location',blurb:'Placeholder poster text: one or two lines about the masterclass.',apply_url:'https://example.com/register'},
   {id:id(303),course_id:id(203),name:'Sample weekend',starts_on:today(26),ends_on:today(27),status:'planned',version:1,listed:true,location:'Sample location'},
   {id:id(304),course_id:id(204),name:'Sample evening lab',starts_on:today(45),ends_on:today(66),status:'planned',version:1,listed:true,blurb:'Placeholder poster text for a multi-week lab.'},
-  {id:id(305),course_id:course,name:'Sample intake B',starts_on:today(110),ends_on:null,status:'planned',version:1,listed:true}].map(h=>({listed:false,blurb:'',location:'',apply_url:'',poster_path:'',...h})),
+  {id:id(305),course_id:course,name:'Sample intake B',starts_on:today(110),ends_on:null,status:'planned',version:1,listed:true},
+  {id:id(306),course_id:id(203),name:'Sample past weekend',starts_on:today(-60),ends_on:today(-59),status:'completed',version:1,listed:true,location:'Sample location',blurb:'Placeholder text for a finished workshop.'},
+  {id:id(307),course_id:id(202),name:'Sample past session',starts_on:today(-20),ends_on:today(-20),status:'completed',version:1,listed:true}].map(h=>({listed:false,blurb:'',location:'',apply_url:'',poster_path:'',...h})),
  tutors:[id(1),id(2),id(6)].map(user_id=>({user_id,added_at:at(-60)})),
  members:[[301,2,'tutor'],[301,3,'learner'],[301,4,'learner'],[301,5,'learner'],[302,1,'tutor'],[302,3,'learner'],[303,2,'tutor'],[303,6,'learner'],[303,7,'learner']]
   .map(([c,u,role])=>({cohort_id:id(c),user_id:id(u),role,status:'active',added_at:at(-40)})),
@@ -117,6 +119,10 @@ function query(table){
 }
 const roster=hid=>state.members.filter(m=>m.cohort_id===hid).map(m=>{const p=people.find(x=>x.id===m.user_id);return {...m,full_name:p.full_name,email:p.email};}).sort((a,b)=>b.role.localeCompare(a.role)||a.full_name.localeCompare(b.full_name));
 const weekStart=()=>{const d=new Date(Date.now()+3*3600000);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.getTime()-3*3600000;};
+const nairobiToday=()=>new Date(Date.now()+3*3600000).toISOString().slice(0,10);
+// Public listing rows, mirroring upcoming_listings() and past_listings() in the database.
+const listings=(keep,order)=>state.cohorts.filter(h=>h.listed&&keep(h)).sort(order).map(h=>({h,c:course(h.course_id)})).filter(({c})=>c.active&&c.programs.active)
+ .map(({h,c})=>({cohort_id:h.id,cohort_name:h.name,starts_on:h.starts_on,ends_on:h.ends_on,status:h.status,blurb:h.blurb,location:h.location,apply_url:h.apply_url,poster_path:h.poster_path,course_title:c.title,course_summary:c.summary,format:c.format,program_name:c.programs.name,program_slug:c.programs.slug}));
 const rpcs={
  is_staff:()=>staff(),
  my_cohort_role:({p_cohort})=>roleIn(p_cohort),
@@ -129,9 +135,8 @@ const rpcs={
  set_tutor:({p_user,p_tutor})=>{requireStaff();state.tutors=state.tutors.filter(t=>t.user_id!==p_user);if(p_tutor)state.tutors.push({user_id:p_user,added_at:new Date().toISOString()});},
  list_tutors:()=>{requireStaff();return state.tutors.map(t=>{const p=people.find(x=>x.id===t.user_id);return {user_id:t.user_id,full_name:p.full_name,email:p.email,added_at:t.added_at,
   teaching:state.members.filter(m=>m.user_id===t.user_id&&m.role==='tutor'&&m.status==='active'&&['planned','active'].includes(state.cohorts.find(h=>h.id===m.cohort_id)?.status)).length};}).sort((a,b)=>a.full_name.localeCompare(b.full_name));},
- upcoming_listings:()=>{const day=new Date(Date.now()+3*3600000).toISOString().slice(0,10);
-  return state.cohorts.filter(h=>h.listed&&['planned','active'].includes(h.status)&&(!h.ends_on||h.ends_on>=day)).map(h=>({h,c:course(h.course_id)})).filter(({c})=>c.active&&c.programs.active)
-   .sort((a,b)=>(a.h.starts_on||'9').localeCompare(b.h.starts_on||'9')).map(({h,c})=>({cohort_id:h.id,cohort_name:h.name,starts_on:h.starts_on,ends_on:h.ends_on,status:h.status,blurb:h.blurb,location:h.location,apply_url:h.apply_url,poster_path:h.poster_path,course_title:c.title,course_summary:c.summary,format:c.format,program_name:c.programs.name,program_slug:c.programs.slug}));},
+ upcoming_listings:()=>listings(h=>['planned','active'].includes(h.status)&&(!h.ends_on||h.ends_on>=nairobiToday()),(a,b)=>(a.starts_on||'9').localeCompare(b.starts_on||'9')),
+ past_listings:()=>listings(h=>h.status!=='archived'&&(h.status==='completed'||(h.ends_on&&h.ends_on<nairobiToday())),(a,b)=>(b.ends_on||b.starts_on||'').localeCompare(a.ends_on||a.starts_on||'')).slice(0,60),
  set_cohort_member:({p_cohort,p_user,p_role,p_status})=>{requireStaff();const m=state.members.find(x=>x.cohort_id===p_cohort&&x.user_id===p_user);
   if(m)Object.assign(m,{role:p_role,status:p_status});else state.members.push({cohort_id:p_cohort,user_id:p_user,role:p_role,status:p_status||'active',added_at:new Date().toISOString()});
   if(p_role==='tutor'&&!state.tutors.some(t=>t.user_id===p_user))state.tutors.push({user_id:p_user,added_at:new Date().toISOString()});},
