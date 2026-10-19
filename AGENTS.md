@@ -25,5 +25,5 @@ Framework-free static portal (HTML/CSS/JS + supabase-js bundled by esbuild) for 
 
 - 2026-10-19: phases 1–3 pushed to https://github.com/Kimina-Santuri/santuri-learning-portal (public, main) and deployed by GitHub Actions to https://kimina-santuri.github.io/santuri-learning-portal/ (Pages source: GitHub Actions). The user applied all three migrations and the seed in the Supabase SQL editor the same day; verified via the public API.
 - Contact/support email is admissions@santuri.org (`supportEmail` in config.js). robots.txt intentionally blocks indexing (user decision).
-- Pending: add the Pages URLs (dashboard.html, reset-password.html) to Supabase Auth redirect URLs; custom domain not chosen yet.
+- Production domain: learn.santuri.org (CNAME `learn` → kimina-santuri.github.io at Cargo DNS; Pages custom domain set via repo settings). Supabase Auth redirect URLs must include https://learn.santuri.org/dashboard.html and /reset-password.html.
 - Local preview with sample data: `npm run dev`, then open `http://127.0.0.1:8081/index.html?preview`. `assets/js/preview-client.js` mimics the database rules in the browser and is excluded from `dist/`. Keep it in step with migrations when adding features.

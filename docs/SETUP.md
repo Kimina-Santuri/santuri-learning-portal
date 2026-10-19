@@ -15,7 +15,7 @@ The migrations only add new tables (programs, courses, cohorts, cohort members, 
 In Authentication → URL Configuration, add the portal's URLs to **Redirect URLs** (keep the existing bookings ones):
 
 - `http://127.0.0.1:8081/dashboard.html` and `http://127.0.0.1:8081/reset-password.html` (local testing)
-- the same two pages on the production domain once chosen (e.g. `https://learn.santuri.org/...`)
+- `https://learn.santuri.org/dashboard.html` and `https://learn.santuri.org/reset-password.html` (production)
 
 ## 3. Staff
 
@@ -23,4 +23,6 @@ Staff are managed in santuri-bookings (Staff dashboard → Members). Anyone with
 
 ## 4. Deploy
 
-Create the GitHub repository `Kimina-Santuri/santuri-learning-portal`, push `main`, then in Settings → Pages set **Source: GitHub Actions**. The workflow builds, checks, tests and deploys `dist/`. For a custom domain, add a `CNAME` file containing the domain and the matching DNS record.
+Create the GitHub repository `Kimina-Santuri/santuri-learning-portal`, push `main`, then in Settings → Pages set **Source: GitHub Actions**. The workflow builds, checks, tests and deploys `dist/`. The site is served at `https://learn.santuri.org`:
+- DNS (santuri.org is managed at Cargo): a `CNAME` record for `learn` pointing to `kimina-santuri.github.io`.
+- GitHub → Settings → Pages: custom domain `learn.santuri.org`, Enforce HTTPS on. With GitHub Actions deployments this setting (not the `CNAME` file) is what counts; the file documents the domain.
