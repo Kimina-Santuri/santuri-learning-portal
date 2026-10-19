@@ -1,0 +1,50 @@
+/* Learning portal additions on top of the shared Santuri account styles. */
+.learning-card{display:flex;justify-content:space-between;align-items:start;gap:1rem}
+.learning-card h3{margin:.2rem 0 .3rem}.learning-card p{margin:.2rem 0}
+.learning-badges{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:end}
+.selected-row td{background:#f3f3f3}
+td select{font:inherit;padding:.35rem;border:1px solid var(--line);background:#fff}
+@media (max-width:640px){.learning-card{flex-direction:column}.learning-badges{justify-content:start}}
+/* Local preview controls (preview-client.js only). */
+.preview-bar{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;max-width:calc(100% - 2rem);background:#000;color:#fff;padding:.6rem .8rem;font:500 .7rem var(--mono)}
+.preview-bar button,.preview-bar a{font:inherit;color:#fff;background:none;border:1px solid #fff;padding:.3rem .55rem;cursor:pointer;text-decoration:none}
+.preview-bar button[aria-pressed=true]{background:#fff;color:#000}
+.preview-bar strong{margin-right:.4rem}
+/* Course workspace */
+a.learning-card{text-decoration:none;color:inherit}a.learning-card:hover{outline:1px solid #000}.open-arrow{font-size:1.1rem}
+.plain-list{list-style:none;margin:0;padding:0;display:grid;gap:.9rem}.plain-list li{display:grid;gap:.15rem}.plain-list small{color:#555}
+.link-button{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.link-button:focus-visible{outline:2px solid #000;outline-offset:2px}
+.prose{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;margin:.4rem 0 1rem}
+.reading{border-left:3px solid #000;padding-left:1rem;margin:1rem 0}
+.material-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.material{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:1rem;align-items:center;padding:.9rem 0;border-bottom:1px solid var(--line)}
+.material small{display:block;color:#555;margin-top:.2rem}.material .actions{flex-wrap:wrap;justify-content:end}
+.feedback{border:1px solid var(--line);padding:1rem;margin:.8rem 0}.feedback .eyebrow{margin:0 0 .3rem}
+.submission{background:#f6f6f6;padding:1rem;margin:.5rem 0 1rem}
+dialog h3{margin:1.4rem 0 .5rem}dialog .form-grid h3{margin:.6rem 0 0}
+details{margin-bottom:1rem}summary{cursor:pointer;font-weight:600}
+.attendance-grid input{box-sizing:border-box;width:100%;min-width:8rem;font:inherit;padding:.35rem;border:1px solid var(--line)}
+.person-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:1rem}.person-card h3{margin:0}
+@media (max-width:640px){.material{grid-template-columns:1fr}.material .actions{justify-content:start}.person-card{grid-template-columns:1fr}}
+/* Public landing page */
+.landing-main{max-width:1400px;margin:auto;padding:0 clamp(1rem,4vw,3rem) 4rem}
+.landing-hero{padding:clamp(3rem,9vw,7rem) 0 clamp(2rem,5vw,4rem);max-width:52rem}
+.landing-hero h1{font-size:clamp(3rem,9vw,7rem);line-height:.92;letter-spacing:-.06em;margin:.6rem 0 1.4rem}
+.landing-hero p:not(.eyebrow){font-size:clamp(1.05rem,1.6vw,1.3rem);color:#333;max-width:38rem;margin:0 0 2rem}
+.landing-heading{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;border-top:1px solid #000;padding-top:1.5rem;margin-bottom:2rem}
+.landing-heading h2{font-size:clamp(1.8rem,3.5vw,2.8rem);letter-spacing:-.05em;margin:.3rem 0 0}.landing-heading .tabs{margin:0}
+.poster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:clamp(1rem,2.5vw,2rem)}
+.poster-card{background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}
+.poster{aspect-ratio:4/5;overflow:hidden;background:#000}.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.poster-generated{color:#fff;padding:1.4rem;display:flex;flex-direction:column;justify-content:space-between;
+ background:repeating-radial-gradient(circle at 85% 15%,transparent 0 18px,rgba(255,255,255,.13) 19px 20px),#000}
+.poster-generated.poster-light{color:#000;background:repeating-radial-gradient(circle at 15% 85%,transparent 0 18px,rgba(0,0,0,.12) 19px 20px),#fff;border-bottom:1px solid var(--line)}
+.poster-program,.poster-meta{font:600 .7rem/1.6 var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.poster-title{font-size:clamp(1.9rem,3vw,2.6rem);line-height:.98;letter-spacing:-.05em;font-weight:600;overflow-wrap:anywhere}
+.poster-info{padding:1.2rem 1.3rem 1.4rem;display:flex;flex-direction:column;gap:.2rem;flex:1}
+.poster-info h3{font-size:1.3rem;letter-spacing:-.03em;margin:.2rem 0}.poster-info .eyebrow{margin:0}
+.poster-when{margin:.2rem 0 .4rem;color:#333}.poster-info .actions{margin-top:auto;padding-top:.8rem;align-items:center}
+.poster-preview{max-width:180px;margin-top:.5rem;border:1px solid var(--line)}
+.listing-fields{border:1px solid var(--line);padding:1rem 1.1rem;margin:0}.listing-fields legend{font:600 .7rem var(--mono);text-transform:uppercase;padding:0 .4rem}.listing-fields .form-grid{margin-top:.8rem}
+.tutor-pick-actions{align-self:end;align-items:center}
+#tutor-pick{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--line)}
