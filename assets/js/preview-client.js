@@ -94,7 +94,7 @@ function rows(table){
   case 'programs':return state.programs.filter(p=>p.active||staff());
   case 'courses':return state.courses.filter(c=>c.active||staff()).map(c=>course(c.id));
   case 'cohorts':return state.cohorts.filter(h=>staff()||roleIn(h.id)).map(h=>cohort(h.id));
-  case 'cohort_members':return state.members.filter(m=>m.user_id===uid||staff()||roleIn(m.cohort_id)==='tutor').map(m=>({...m,cohorts:cohort(m.cohort_id)}));
+  case 'cohort_members':return state.members.filter(m=>m.user_id===uid||staff()||roleIn(m.cohort_id)==='tutor').map(m=>{const p=people.find(x=>x.id===m.user_id);return {...m,cohorts:cohort(m.cohort_id),profiles:{full_name:p.full_name,email:p.email}};});
   case 'modules':return state.modules.filter(m=>inCourse(m.course_id));
   case 'materials':return state.materials.filter(m=>teachCourse(m.course_id)||(m.published&&inCourse(m.course_id)));
   case 'assignments':return state.assignments.filter(a=>teachCohort(a.cohort_id)||(a.published&&roleIn(a.cohort_id)==='learner'));

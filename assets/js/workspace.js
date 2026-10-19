@@ -1,8 +1,11 @@
 import {result} from './supabase-client.js';
 import {escapeHTML as e,dateRange,label,when,toLocalInput,fromLocalInput,percent,safeFileName,FORMATS,MATERIAL_KINDS,SUBMISSION_TYPES,ATTENDANCE,MEMBER_STATUSES} from './portal-utils.js';
+import {shrinkImage} from './images.js';
 import {app,field,area,select,check,empty,action,stat,tabs,message,run,modal,session,rpc,rows,startSession,fail} from './ui.js';
 // Course workspace for one cohort. Learners study and submit; tutors (and staff) teach, grade and take attendance.
 const BUCKET='learning-files';
+// Photos in materials and submissions are scaled to fit this box before upload.
+const PHOTO={maxWidth:2000,maxHeight:2000};
 const params=new URLSearchParams(location.search),cohortId=params.get('id');
 let tab=params.get('tab')||'overview',ctx,reviewing=null;
 const db=()=>session.db;
@@ -99,9 +102,9 @@ async function curriculum(content){
 function editMaterial(m,modules,moduleId){
  const dialog=modal(m?'Edit material':'Add material',`<form class="form-grid"><div class="full">${field('Title','title','text',m?.title,'required maxlength="160"')}</div>${select('Module','module_id',[['','General resources'],...modules.map(x=>[x.id,x.title])],moduleId)}${select('Type','kind',MATERIAL_KINDS,m?.kind??'note','required')}
   <div class="full" data-kind="link">${field('Link','url','url',m?.url,'placeholder="https://"')}</div>
-  <div class="full" data-kind="file"><label class="field">File${m?.file_name?` <small>Current: ${e(m.file_name)}. Choose a new file to replace it.</small>`:''}<input name="file" type="file"></label><p class="hint">Up to 50 MB per file. For bigger projects, zip them or share a link instead.</p></div>
+  <div class="full" data-kind="file"><label class="field">File${m?.file_name?` <small>Current: ${e(m.file_name)}. Choose a new file to replace it.</small>`:''}<input name="file" type="file"></label><p class="hint">Up to 50 MB per file; photos are resized automatically. For bigger projects, zip them or share a link instead.</p></div>
   <div class="full">${area('<span data-body-label>Content</span>','body',m?.body,'maxlength="20000" rows="8"')}</div>${field('Order','sort_order','number',m?.sort_order??0,'step="1"')}<div>${check('Visible to learners','published',m?.published??true)}</div><div class="full"><button class="button">Save material</button></div></form>`,async f=>{
-  const kind=f.get('kind'),file=f.get('file');let path=kind==='file'?m?.file_path||'':'',name=kind==='file'?m?.file_name||'':'';
+  const kind=f.get('kind'),file=await shrinkImage(f.get('file'),PHOTO);let path=kind==='file'?m?.file_path||'':'',name=kind==='file'?m?.file_name||'':'';
   if(kind==='file'&&file?.size){path=`materials/${ctx.course.id}/${crypto.randomUUID()}-${safeFileName(file.name)}`;await upload(path,file);name=file.name;}
   if(kind==='file'&&!path)throw Error('Choose a file to upload.');
   await rpc('save_material',{p_id:m?.id??null,p_version:m?.version??null,p_data:{course_id:ctx.course.id,module_id:f.get('module_id'),title:f.get('title'),kind,body:f.get('body'),url:kind==='link'?f.get('url'):'',file_path:path,file_name:name,published:f.has('published'),sort_order:Number(f.get('sort_order')||0)}});
@@ -143,8 +146,8 @@ function openAssignment(a,s){
  const graded=s?.status==='graded',type=a.submission_type;
  const dialog=modal(a.title,`<p class="hint">${a.due_at?'Due '+e(when(a.due_at))+' EAT':'No deadline'} · ${a.max_points?a.max_points+' points':'Feedback only'} · ${e(label(SUBMISSION_TYPES,type))}</p>${a.instructions?`<div class="reading">${text(a.instructions)}</div>`:''}
   <h3>Your submission</h3>${submissionView(s,a)}${s?.feedback?`<div class="feedback"><p class="eyebrow">Tutor feedback${s.status==='graded'?' · '+e(points(s,a)):s.status==='returned'?' · returned for revision':''}</p>${text(s.feedback)}</div>`:''}
-  ${graded?'<p class="hint">This assignment has been graded. Ask your tutor if you need to resubmit.</p>':`<form class="form-grid"><h3 class="full">${s?'Resubmit':'Submit your work'}</h3>${['any','text'].includes(type)?`<div class="full">${area('Written response','body',s?.body??'','maxlength="20000" rows="6"'+(type==='text'?' required':''))}</div>`:''}${['any','link'].includes(type)?`<div class="full">${field('Link (SoundCloud, Drive, YouTube…)','url','url',s?.url??'','placeholder="https://"'+(type==='link'?' required':''))}</div>`:''}${['any','file'].includes(type)?`<div class="full"><label class="field">File${s?.file_name?` <small>Current: ${e(s.file_name)}. Leave empty to keep it.</small>`:''}<input name="file" type="file" ${type==='file'&&!s?.file_path?'required':''}></label><p class="hint">Up to 50 MB. For large WAVs or Ableton projects, share a link instead.</p></div>`:''}<div class="full"><button class="button">${s?'Resubmit':'Submit'} ↗</button></div></form>`}`,graded?null:async f=>{
-  const file=f.get('file');let path=s?.file_path||'',name=s?.file_name||'';
+  ${graded?'<p class="hint">This assignment has been graded. Ask your tutor if you need to resubmit.</p>':`<form class="form-grid"><h3 class="full">${s?'Resubmit':'Submit your work'}</h3>${['any','text'].includes(type)?`<div class="full">${area('Written response','body',s?.body??'','maxlength="20000" rows="6"'+(type==='text'?' required':''))}</div>`:''}${['any','link'].includes(type)?`<div class="full">${field('Link (SoundCloud, Drive, YouTube…)','url','url',s?.url??'','placeholder="https://"'+(type==='link'?' required':''))}</div>`:''}${['any','file'].includes(type)?`<div class="full"><label class="field">File${s?.file_name?` <small>Current: ${e(s.file_name)}. Leave empty to keep it.</small>`:''}<input name="file" type="file" ${type==='file'&&!s?.file_path?'required':''}></label><p class="hint">Up to 50 MB; photos are resized automatically. For large WAVs or Ableton projects, share a link instead.</p></div>`:''}<div class="full"><button class="button">${s?'Resubmit':'Submit'} ↗</button></div></form>`}`,graded?null:async f=>{
+  const file=await shrinkImage(f.get('file'),PHOTO);let path=s?.file_path||'',name=s?.file_name||'';
   if(file?.size){path=`submissions/${cohortId}/${a.id}/${session.user.id}/${crypto.randomUUID()}-${safeFileName(file.name)}`;await upload(path,file);name=file.name;}
   await rpc('submit_assignment',{p_assignment:a.id,p_body:f.get('body')??'',p_url:f.get('url')??'',p_file_path:path,p_file_name:name});
   message(`Submitted “${a.title}”.`);await render();});

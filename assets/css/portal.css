@@ -54,3 +54,4 @@ details{margin-bottom:1rem}summary{cursor:pointer;font-weight:600}
 .poster-past img,.poster-past.poster-generated{filter:grayscale(1) contrast(.85);opacity:.75}
 @media (max-width:760px){.landing-controls{align-items:start}}
 .text-button.danger{color:#a40000}.button.danger-button{background:#a40000;border-color:#a40000;color:#fff}
+.tutor-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.4rem 1rem}
