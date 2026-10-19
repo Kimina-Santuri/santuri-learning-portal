@@ -48,3 +48,4 @@ details{margin-bottom:1rem}summary{cursor:pointer;font-weight:600}
 .listing-fields{border:1px solid var(--line);padding:1rem 1.1rem;margin:0}.listing-fields legend{font:600 .7rem var(--mono);text-transform:uppercase;padding:0 .4rem}.listing-fields .form-grid{margin-top:.8rem}
 .tutor-pick-actions{align-self:end;align-items:center}
 #tutor-pick{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--line)}
+.poster-grid>.empty-state,.poster-grid>.muted{grid-column:1/-1}
